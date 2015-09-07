@@ -309,7 +309,7 @@ function usual(&$out) {
    //TO-DO
    }
 
-   echo $rec['LOG'];exit;
+   //echo $rec['LOG'];exit;
 
 
 
