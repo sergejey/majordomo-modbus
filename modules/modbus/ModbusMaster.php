@@ -782,9 +782,30 @@ class ModbusMaster {
     // build data section
     $buffer1 = "";
     foreach($data as $key=>$dataitem) {
-      $buffer1 .= iecType::iecINT($dataitem);   // register values x
-      $dataLen += 2;
-      break;
+
+      if($dataTypes[$key]=="INT"){
+        $buffer1 .= iecType::iecINT($dataitem);   // register values x
+        $dataLen += 2;
+        break;
+      }
+      elseif($dataTypes[$key]=="DINT"){
+        $buffer1 .= iecType::iecDINT($dataitem, $this->endianness);   // register values x
+        $dataLen += 4;
+        break;
+      }
+      elseif($dataTypes[$key]=="REAL") {
+        $buffer1 .= iecType::iecREAL($dataitem, $this->endianness);   // register values x
+        $dataLen += 4;
+        break;
+      }       
+      else{
+        $buffer1 .= iecType::iecINT($dataitem);   // register values x
+        $dataLen += 2;
+        break;
+      }
+      //$buffer1 .= iecType::iecINT($dataitem);   // register values x
+      //$dataLen += 2;
+      //break;
     }
     // build body
     $buffer2 = "";

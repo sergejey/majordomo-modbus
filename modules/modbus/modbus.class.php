@@ -269,7 +269,13 @@ function usual(&$out) {
    //FC6 Write single register
     try {
      $data_set=array((int)$rec['DATA']);
-     $dataTypes = array("INT"); //TO-DO: support of other data types
+     if ($rec['RESPONSE_CONVERT']=='r2f') {
+      $dataTypes = array("REAL");
+     } elseif ($rec['RESPONSE_CONVERT']=='d2i' || $rec['RESPONSE_CONVERT']=='dw2i') {
+      $dataTypes = array("DINT");
+     } else {
+      $dataTypes = array("INT");
+     }
      $recData = $modbus->writeSingleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes);
     }
     catch (Exception $e) {
@@ -295,8 +301,16 @@ function usual(&$out) {
      $data_set=explode(',', $rec['DATA']);
      $dataTypes=array();
      foreach($data_set as $k=>$v) {
-      $data_set[$k]=(int)$v;
-      $dataTypes[]="INT";  //TO-DO: support of other data types
+      if ($rec['RESPONSE_CONVERT']=='r2f') {
+       $dataTypes[] = "REAL";
+       $data_set[$k]=(float)$v;
+      } elseif ($rec['RESPONSE_CONVERT']=='d2i' || $rec['RESPONSE_CONVERT']=='dw2i') {
+       $dataTypes[] = "DINT";
+       $data_set[$k]=(int)$v;
+      } else {
+       $data_set[$k]=(int)$v;
+       $dataTypes[] = "INT";
+      }
      }
      $recData = $modbus->writeMultipleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes);
     }
