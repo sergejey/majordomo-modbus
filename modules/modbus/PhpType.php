@@ -37,14 +37,14 @@ class PhpType {
      * @param bool $endianness
      * @return float
      */
-    public static function bytes2float($values, $endianness = 0) {
+    public static function bytes2float($values, $swapregs, $endianness = 0) {
         $data = array();
         $real = 0;
 
         // Set the array to correct form
         $data = self::checkData($values);
         // Combine bytes
-        $real = self::combineBytes($data, $endianness);
+        $real = self::combineBytes($data, $swapregs, $endianness);
         // Convert the real value to float
         return (float) self::real2float($real);
     }
@@ -59,13 +59,13 @@ class PhpType {
      * @param bool $endianness
      * @return int
      */
-    public static function bytes2signedInt($values, $endianness = 0) {
+    public static function bytes2signedInt($values, $swapregs, $endianness = 0) {
         $data = array();
         $int = 0;
         // Set the array to correct form
         $data = self::checkData($values);
         // Combine bytes
-        $int = self::combineBytes($data, $endianness);
+        $int = self::combineBytes($data, $swapregs, $endianness);
         // In the case of signed 2 byte value convert it to 4 byte one
         if ((count($values) == 2) && ((0x8000 & $int) > 0)) {
             $int = 0xFFFF8000 | $int;
@@ -84,13 +84,13 @@ class PhpType {
      * @param bool $endianness
      * @return int|float
      */
-    public static function bytes2unsignedInt($values, $endianness = 0) {
+    public static function bytes2unsignedInt($values, $swapregs, $endianness = 0) {
         $data = array();
         $int = 0;
         // Set the array to correct form
         $data = self::checkData($values);
         // Combine bytes
-        $int = self::combineBytes($data, $endianness);
+        $int = self::combineBytes($data, $swapregs, $endianness);
         // Convert the value
         return self::dword2unsignedInt($int);
     }
@@ -229,20 +229,37 @@ class PhpType {
      * @param bool $endianness
      * @return int
      */
-    private static function combineBytes($data, $endianness) {
+    private static function combineBytes($data, $swapregs, $endianness) {
         $value = 0;
         // Combine bytes
-        if ($endianness == 0)
-            $value = (($data[3] & 0xFF)<<16) |
-                    (($data[2] & 0xFF)<<24) |
-                    (($data[1] & 0xFF)) |
-                    (($data[0] & 0xFF)<<8);
-        else
-            $value = (($data[3] & 0xFF)<<24) |
-                    (($data[2] & 0xFF)<<16) |
-                    (($data[1] & 0xFF)<<8) |
-                    (($data[0] & 0xFF));
-
+		
+		if ($swapregs)
+		{
+			if ($endianness == 0)
+				$value = (($data[1] & 0xFF)<<16) |
+						 (($data[0] & 0xFF)<<24) |
+						 (($data[3] & 0xFF)) |
+						 (($data[2] & 0xFF)<<8);
+			else
+				$value = (($data[1] & 0xFF)<<24) |
+						 (($data[0] & 0xFF)<<16) |
+						 (($data[3] & 0xFF)<<8) |
+						 (($data[2] & 0xFF));
+		}
+		else
+		{			
+			if ($endianness == 0)
+				$value = (($data[3] & 0xFF)<<16) |
+						 (($data[2] & 0xFF)<<24) |
+						 (($data[1] & 0xFF)) |
+						 (($data[0] & 0xFF)<<8);
+			else
+				$value = (($data[3] & 0xFF)<<24) |
+						 (($data[2] & 0xFF)<<16) |
+						 (($data[1] & 0xFF)<<8) |
+						 (($data[0] & 0xFF));
+		}
+		
         return $value;
     }
 }

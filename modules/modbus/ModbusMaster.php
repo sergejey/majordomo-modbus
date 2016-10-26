@@ -730,12 +730,12 @@ class ModbusMaster {
    * @param array $dataTypes Array of types of values to be written. The array should consists of string "INT", "DINT" and "REAL".    
    * @return bool Success flag
    */       
-  function writeSingleRegister($unitId, $reference, $data, $dataTypes){
+  function writeSingleRegister($unitId, $reference, $data, $dataTypes, $swapregs){
     $this->status .= "writeSingleRegister: START\n";
     // connect
     $this->connect();
     // send FC6    
-    $packet = $this->writeSingleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes);
+    $packet = $this->writeSingleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes, $swapregs);
     $this->status .= $this->printPacket($packet);    
     $this->send($packet);
     // receive response
@@ -777,7 +777,7 @@ class ModbusMaster {
    * @param array $dataTypes
    * @return string
    */
-  private function writeSingleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes){
+  private function writeSingleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes, $swapregs){
     $dataLen = 0;
     // build data section
     $buffer1 = "";
@@ -789,12 +789,12 @@ class ModbusMaster {
         break;
       }
       elseif($dataTypes[$key]=="DINT"){
-        $buffer1 .= iecType::iecDINT($dataitem, $this->endianness);   // register values x
+        $buffer1 .= iecType::iecDINT($dataitem, $swapregs, $this->endianness);   // register values x
         $dataLen += 4;
         break;
       }
       elseif($dataTypes[$key]=="REAL") {
-        $buffer1 .= iecType::iecREAL($dataitem, $this->endianness);   // register values x
+        $buffer1 .= iecType::iecREAL($dataitem, $swapregs, $this->endianness);   // register values x
         $dataLen += 4;
         break;
       }       
@@ -969,12 +969,12 @@ class ModbusMaster {
    * @param array $dataTypes Array of types of values to be written. The array should consists of string "INT", "DINT" and "REAL".    
    * @return bool Success flag
    */       
-  function writeMultipleRegister($unitId, $reference, $data, $dataTypes){
+  function writeMultipleRegister($unitId, $reference, $data, $dataTypes, $swapregs){
     $this->status .= "writeMultipleRegister: START\n";
     // connect
     $this->connect();
     // send FC16    
-    $packet = $this->writeMultipleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes);
+    $packet = $this->writeMultipleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes, $swapregs);
     $this->status .= $this->printPacket($packet);    
     $this->send($packet);
     // receive response
@@ -1017,7 +1017,7 @@ class ModbusMaster {
    * @param array $dataTypes
    * @return string
    */
-  private function writeMultipleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes){
+  private function writeMultipleRegisterPacketBuilder($unitId, $reference, $data, $dataTypes, $swapregs){
     $dataLen = 0;
     // build data section
     $buffer1 = "";
@@ -1027,11 +1027,11 @@ class ModbusMaster {
         $dataLen += 2;
       }
       elseif($dataTypes[$key]=="DINT"){
-        $buffer1 .= iecType::iecDINT($dataitem, $this->endianness);   // register values x
+        $buffer1 .= iecType::iecDINT($dataitem, $swapregs, $this->endianness);   // register values x
         $dataLen += 4;
       }
       elseif($dataTypes[$key]=="REAL") {
-        $buffer1 .= iecType::iecREAL($dataitem, $this->endianness);   // register values x
+        $buffer1 .= iecType::iecREAL($dataitem, $swapregs, $this->endianness);   // register values x
         $dataLen += 4;
       }       
       else{
@@ -1088,12 +1088,12 @@ class ModbusMaster {
    * @param array $dataTypes Array of types of values to be written. The array should consists of string "INT", "DINT" and "REAL".   
    * @return false|Array Success flag or array of data.
    */
-  function readWriteRegisters($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes){
+  function readWriteRegisters($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes, $swapregs){
     $this->status .= "readWriteRegisters: START\n";
     // connect
     $this->connect();
     // send FC23    
-    $packet = $this->readWriteRegistersPacketBuilder($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes);
+    $packet = $this->readWriteRegistersPacketBuilder($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes, $swapregs);
     $this->status .= $this->printPacket($packet);    
     $this->send($packet);
     // receive response
@@ -1121,8 +1121,8 @@ class ModbusMaster {
    * @param array $dataTypes
    * @return false|Array
    */
-  function fc23($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes){
-    return $this->readWriteRegisters($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes);
+  function fc23($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes, $swapregs){
+    return $this->readWriteRegisters($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes, $swapregs);
   }
   
   /**
@@ -1139,7 +1139,7 @@ class ModbusMaster {
    * @param array $dataTypes
    * @return string
    */
-  private function readWriteRegistersPacketBuilder($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes){
+  private function readWriteRegistersPacketBuilder($unitId, $referenceRead, $quantity, $referenceWrite, $data, $dataTypes, $swapregs){
     $dataLen = 0;
     // build data section
     $buffer1 = "";
@@ -1149,11 +1149,11 @@ class ModbusMaster {
         $dataLen += 2;
       }
       elseif($dataTypes[$key]=="DINT"){
-        $buffer1 .= iecType::iecDINT($dataitem, $this->endianness);   // register values x
+        $buffer1 .= iecType::iecDINT($dataitem, $swapregs, $this->endianness);   // register values x
         $dataLen += 4;
       }
       elseif($dataTypes[$key]=="REAL") {
-        $buffer1 .= iecType::iecREAL($dataitem, $this->endianness);   // register values x
+        $buffer1 .= iecType::iecREAL($dataitem, $swapregs, $this->endianness);   // register values x
         $dataLen += 4;
       }       
       else{

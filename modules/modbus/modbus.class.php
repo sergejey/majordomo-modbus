@@ -10,7 +10,7 @@
 * @version 0.1 (wizard, 17:07:34 [Jul 24, 2014])
 */
 Define('DEF_REQUEST_TYPE_OPTIONS', 'FC1=FC1 Read coils|FC2=FC2 Read input discretes|FC3=FC3 Read holding registers|FC4=FC4 Read holding input registers|FC5=FC5 Write single coil|FC6=FC6 Write single register|FC15=FC15 Write multiple coils|FC16=FC16 Write multiple registers'); // options for 'REQUEST_TYPE' |FC23=FC23 Read/Write multiple registers
-Define('DEF_RESPONSE_CONVERT_OPTIONS', '0=None (bytes)|r2f=REAL to Float|d2i=DINT to integer|dw2i=DWORD to integer|i2i=INT to integer|w2i=WORD to integer|s=String'); // options for 'RESPONSE_CONVERT'
+Define('DEF_RESPONSE_CONVERT_OPTIONS', '0=None (bytes)|r2f=REAL to Float|r2fs=REAL to Float (swap regs)|d2i=DINT to integer|d2is=DINT to integer (swap regs)|dw2i=DWORD to integer|dw2is=DWORD to integer (swap regs)|i2i=INT to integer|w2i=WORD to integer|s=String'); // options for 'RESPONSE_CONVERT'
 //
 //
 class modbus extends module {
@@ -271,12 +271,21 @@ function usual(&$out) {
      $data_set=array((int)$rec['DATA']);
      if ($rec['RESPONSE_CONVERT']=='r2f') {
       $dataTypes = array("REAL");
+	  $swapregs = false;
+     } elseif ($rec['RESPONSE_CONVERT']=='r2fs') {
+      $dataTypes = array("REAL");
+	  $swapregs = true;
      } elseif ($rec['RESPONSE_CONVERT']=='d2i' || $rec['RESPONSE_CONVERT']=='dw2i') {
       $dataTypes = array("DINT");
+	  $swapregs = false;
+     } elseif ($rec['RESPONSE_CONVERT']=='d2is' || $rec['RESPONSE_CONVERT']=='dw2is') {
+      $dataTypes = array("DINT");
+	  $swapregs = true;
      } else {
       $dataTypes = array("INT");
+	  $swapregs = false;
      }
-     $recData = $modbus->writeSingleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes);
+     $recData = $modbus->writeSingleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes, $swapregs);
     }
     catch (Exception $e) {
     // Print error information if any
@@ -304,15 +313,26 @@ function usual(&$out) {
       if ($rec['RESPONSE_CONVERT']=='r2f') {
        $dataTypes[] = "REAL";
        $data_set[$k]=(float)$v;
+ 	   $swapregs = false;
+      } elseif ($rec['RESPONSE_CONVERT']=='r2fs') {
+       $dataTypes[] = "REAL";
+       $data_set[$k]=(float)$v;
+ 	   $swapregs = true;
       } elseif ($rec['RESPONSE_CONVERT']=='d2i' || $rec['RESPONSE_CONVERT']=='dw2i') {
        $dataTypes[] = "DINT";
        $data_set[$k]=(int)$v;
+ 	   $swapregs = false;
+      } elseif ($rec['RESPONSE_CONVERT']=='d2is' || $rec['RESPONSE_CONVERT']=='dw2is') {
+       $dataTypes[] = "DINT";
+       $data_set[$k]=(int)$v;
+ 	   $swapregs = true;
       } else {
        $data_set[$k]=(int)$v;
        $dataTypes[] = "INT";
+ 	   $swapregs = false;
       }
      }
-     $recData = $modbus->writeMultipleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes);
+     $recData = $modbus->writeMultipleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes, $swapregs);
     }
     catch (Exception $e) {
     // Print error information if any
@@ -334,27 +354,42 @@ function usual(&$out) {
     //REAL to Float
     $values = array_chunk($recData, 4);   
     $recData=array();
-    foreach($values as $bytes) echo $recData[]=PhpType::bytes2float($bytes);
+    foreach($values as $bytes) echo $recData[]=PhpType::bytes2float($bytes, false);
+   } elseif ($rec['RESPONSE_CONVERT']=='r2fs') {
+    //REAL to Float (swap regs)
+    $values = array_chunk($recData, 4);   
+    $recData=array();
+    foreach($values as $bytes) echo $recData[]=PhpType::bytes2float($bytes, true);
    } elseif ($rec['RESPONSE_CONVERT']=='d2i') {
     //DINT to integer
     $values = array_chunk($recData, 4);   
     $recData=array();
-    foreach($values as $bytes) echo $recData[]=PhpType::bytes2signedInt($bytes);
+    foreach($values as $bytes) echo $recData[]=PhpType::bytes2signedInt($bytes, false);
+   } elseif ($rec['RESPONSE_CONVERT']=='d2is') {
+    //DINT to integer (swap regs)
+    $values = array_chunk($recData, 4);   
+    $recData=array();
+    foreach($values as $bytes) echo $recData[]=PhpType::bytes2signedInt($bytes, true);
    } elseif ($rec['RESPONSE_CONVERT']=='dw2i') {
     //DWORD to integer
     $values = array_chunk($recData, 4);   
     $recData=array();
-    foreach($values as $bytes) $recData[]=PhpType::bytes2unsignedInt($bytes);
+    foreach($values as $bytes) $recData[]=PhpType::bytes2unsignedInt($bytes, false);
+   } elseif ($rec['RESPONSE_CONVERT']=='dw2is') {
+    //DWORD to integer (swap regs)
+    $values = array_chunk($recData, 4);   
+    $recData=array();
+    foreach($values as $bytes) $recData[]=PhpType::bytes2unsignedInt($bytes, true);
    } elseif ($rec['RESPONSE_CONVERT']=='i2i') {
     //INT to integer
     $values = array_chunk($recData, 2);
     $recData=array();
-    foreach($values as $bytes) $recData[]=PhpType::bytes2signedInt($bytes);
+    foreach($values as $bytes) $recData[]=PhpType::bytes2signedInt($bytes, false);
    } elseif ($rec['RESPONSE_CONVERT']=='w2i') {
     //WORD to integer
     $values = array_chunk($recData, 2);
     $recData=array();
-    foreach($values as $bytes) $recData[]=PhpType::bytes2unsignedInt($bytes);
+    foreach($values as $bytes) $recData[]=PhpType::bytes2unsignedInt($bytes, false);
    } elseif ($rec['RESPONSE_CONVERT']=='s') {
     //String
     $recData=array(PhpType::bytes2string($recData));

@@ -62,9 +62,9 @@ class IecType {
      * @return value IEC-1131 INT data type
      *
      */
-    public static function iecDINT($value, $endianness = 0) {
+    public static function iecDINT($value, $swapregs, $endianness = 0) {
         // result with right endianness
-        return self::endianness($value, $endianness);
+        return self::endianness($value, $swapregs, $endianness);
     }
 
     /**
@@ -76,11 +76,11 @@ class IecType {
      * @param value endianness defines endian codding (little endian == 0, big endian == 1)
      * @return value IEC-1131 REAL data type
      */
-    public static function iecREAL($value, $endianness = 0) {
+    public static function iecREAL($value, $swapregs, $endianness = 0) {
         // iecREAL representation
         $real = self::float2iecReal($value);
         // result with right endianness
-        return self::endianness($real, $endianness);
+        return self::endianness($real, $swapregs, $endianness);
     }
 
     /**
@@ -113,20 +113,38 @@ class IecType {
      * @param bool $endianness
      * @return int
      */
-    private static function endianness($value, $endianness = 0) {
-        if ($endianness == 0)
-            return
-                    self::iecBYTE(($value >> 8) & 0x000000FF) .
-                    self::iecBYTE(($value & 0x000000FF)) .
-                    self::iecBYTE(($value >> 24) & 0x000000FF) .
-                    self::iecBYTE(($value >> 16) & 0x000000FF);
-        else
-            return
+    private static function endianness($value, $swapregs, $endianness = 0) {
+        if ($swapregs)
+		{
+			if ($endianness == 0)
+				return
                     self::iecBYTE(($value >> 24) & 0x000000FF) .
                     self::iecBYTE(($value >> 16) & 0x000000FF) .
                     self::iecBYTE(($value >> 8) & 0x000000FF) .
                     self::iecBYTE(($value & 0x000000FF));
-    }
+			else
+				return
+                    self::iecBYTE(($value >> 16) & 0x000000FF) .
+                    self::iecBYTE(($value >> 24) & 0x000000FF) .
+                    self::iecBYTE(($value & 0x000000FF)) .
+                    self::iecBYTE(($value >> 8) & 0x000000FF);
+		}
+		else
+		{
+			if ($endianness == 0)
+				return
+                    self::iecBYTE(($value >> 8) & 0x000000FF) .
+                    self::iecBYTE(($value & 0x000000FF)) .
+                    self::iecBYTE(($value >> 24) & 0x000000FF) .
+                    self::iecBYTE(($value >> 16) & 0x000000FF);
+			else
+				return
+                    self::iecBYTE(($value & 0x000000FF)) .
+                    self::iecBYTE(($value >> 8) & 0x000000FF) .
+                    self::iecBYTE(($value >> 16) & 0x000000FF) .
+                    self::iecBYTE(($value >> 24) & 0x000000FF);
+		}
+	}
 
 }
 
