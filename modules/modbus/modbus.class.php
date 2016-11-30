@@ -271,19 +271,19 @@ function usual(&$out) {
      $data_set=array((int)$rec['DATA']);
      if ($rec['RESPONSE_CONVERT']=='r2f') {
       $dataTypes = array("REAL");
-	  $swapregs = false;
+          $swapregs = false;
      } elseif ($rec['RESPONSE_CONVERT']=='r2fs') {
       $dataTypes = array("REAL");
-	  $swapregs = true;
+          $swapregs = true;
      } elseif ($rec['RESPONSE_CONVERT']=='d2i' || $rec['RESPONSE_CONVERT']=='dw2i') {
       $dataTypes = array("DINT");
-	  $swapregs = false;
+          $swapregs = false;
      } elseif ($rec['RESPONSE_CONVERT']=='d2is' || $rec['RESPONSE_CONVERT']=='dw2is') {
       $dataTypes = array("DINT");
-	  $swapregs = true;
+          $swapregs = true;
      } else {
       $dataTypes = array("INT");
-	  $swapregs = false;
+          $swapregs = false;
      }
      $recData = $modbus->writeSingleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes, $swapregs);
     }
@@ -313,23 +313,23 @@ function usual(&$out) {
       if ($rec['RESPONSE_CONVERT']=='r2f') {
        $dataTypes[] = "REAL";
        $data_set[$k]=(float)$v;
- 	   $swapregs = false;
+           $swapregs = false;
       } elseif ($rec['RESPONSE_CONVERT']=='r2fs') {
        $dataTypes[] = "REAL";
        $data_set[$k]=(float)$v;
- 	   $swapregs = true;
+           $swapregs = true;
       } elseif ($rec['RESPONSE_CONVERT']=='d2i' || $rec['RESPONSE_CONVERT']=='dw2i') {
        $dataTypes[] = "DINT";
        $data_set[$k]=(int)$v;
- 	   $swapregs = false;
+           $swapregs = false;
       } elseif ($rec['RESPONSE_CONVERT']=='d2is' || $rec['RESPONSE_CONVERT']=='dw2is') {
        $dataTypes[] = "DINT";
        $data_set[$k]=(int)$v;
- 	   $swapregs = true;
+           $swapregs = true;
       } else {
        $data_set[$k]=(int)$v;
        $dataTypes[] = "INT";
- 	   $swapregs = false;
+           $swapregs = false;
       }
      }
      $recData = $modbus->writeMultipleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes, $swapregs);
@@ -488,7 +488,7 @@ modbusdevices - Modbus devices
  modbusdevices: POLLPERIOD int(10) NOT NULL DEFAULT '0'
  modbusdevices: LINKED_OBJECT varchar(255) NOT NULL DEFAULT ''
  modbusdevices: LINKED_PROPERTY varchar(255) NOT NULL DEFAULT ''
- modbusdevices: LOG text NOT NULL DEFAULT ''
+ modbusdevices: LOG text
 EOD;
   parent::dbInstall($data);
  }
