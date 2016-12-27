@@ -99,6 +99,7 @@
   // $rec['LOG']=$log;
   //UPDATING RECORD
    if ($ok) {
+    unset($rec['LOG']);
     if ($rec['ID']) {
      SQLUpdate($table_name, $rec); // update
     } else {
