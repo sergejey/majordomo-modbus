@@ -400,6 +400,14 @@ function usual(&$out) {
    if ($result && $result!=$rec['DATA']) {
     $rec['LOG']=date('Y-m-d H:i:s')." ".$result."\n".$rec['LOG'];
    }
+
+   $tmp=explode("\n", $rec['LOG']);
+   $total=count($tmp);
+   if ($total > 30) {
+    $tmp=array_slice($tmp, 0, 30);
+    $rec['LOG']=implode("\n", $tmp);
+   }
+
    $rec['DATA']=$result;
    SQLUpdate('modbusdevices', $rec);
    if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY']) {
