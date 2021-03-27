@@ -33,9 +33,13 @@ if (!$tmp['ID'])
 
 echo date("H:i:s") . " running " . basename(__FILE__) . "\n";
 
+$checked_time = 0;
 while (1)
 {
-   setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
+    if (time() - $checked_time > 20) {
+        $checked_time = time();
+        setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
+    }
    
    // check all web vars
    $modbus->readAll();
