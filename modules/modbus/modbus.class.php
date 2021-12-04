@@ -411,7 +411,13 @@ function usual(&$out) {
    $rec['DATA']=$result;
    SQLUpdate('modbusdevices', $rec);
    if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY']) {
-    setGlobal($rec['LINKED_OBJECT'].'.'.$rec['LINKED_PROPERTY'], $rec['DATA'], array($this->name=>'0'));
+    if ($rec['NASOBIT_CINITELEM']=='1')
+     {
+      setGlobal($rec['LINKED_OBJECT'].'.'.$rec['LINKED_PROPERTY'], $rec['DATA']*$rec['CINITEL'], array($this->name=>'0'));
+     } else
+     {
+      setGlobal($rec['LINKED_OBJECT'].'.'.$rec['LINKED_PROPERTY'], $rec['DATA'], array($this->name=>'0'));
+     }
    }
 
   } else {
@@ -491,6 +497,8 @@ modbusdevices - Modbus devices
  modbusdevices: REQUEST_TOTAL int(10) NOT NULL DEFAULT '0'
  modbusdevices: RESPONSE_CONVERT varchar(10) NOT NULL DEFAULT ''
  modbusdevices: DATA text
+ modbusdevices: CINITEL float(8,4) NULL DEFAULT '1'
+ modbusdevices: NASOBIT_CINITELEM boolean() NOT NULL DEFAULT '0'
  modbusdevices: CHECK_LATEST datetime
  modbusdevices: CHECK_NEXT datetime
  modbusdevices: POLLPERIOD int(10) NOT NULL DEFAULT '0'

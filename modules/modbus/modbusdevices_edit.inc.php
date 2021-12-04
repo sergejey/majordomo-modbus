@@ -31,6 +31,12 @@
    global $protocol;
    $rec['PROTOCOL']=$protocol;
 
+   global $cinitel;
+   $rec['CINITEL']=$cinitel;
+
+   global $nasobit_cinitelem;
+   $rec['NASOBIT_CINITELEM']=$nasobit_cinitelem;
+
    global $device_id;
    $rec['DEVICE_ID']=(int)$device_id;
 
