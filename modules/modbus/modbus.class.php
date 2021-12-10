@@ -10,7 +10,7 @@
 * @version 0.1 (wizard, 17:07:34 [Jul 24, 2014])
 */
 Define('DEF_REQUEST_TYPE_OPTIONS', 'FC1=FC1 Read coils|FC2=FC2 Read input discretes|FC3=FC3 Read holding registers|FC4=FC4 Read holding input registers|FC5=FC5 Write single coil|FC6=FC6 Write single register|FC15=FC15 Write multiple coils|FC16=FC16 Write multiple registers'); // options for 'REQUEST_TYPE' |FC23=FC23 Read/Write multiple registers
-Define('DEF_RESPONSE_CONVERT_OPTIONS', '0=None (bytes)|r2f=REAL to Float|r2fs=REAL to Float (swap regs)|d2i=DINT to integer|d2is=DINT to integer (swap regs)|dw2i=DWORD to integer|dw2is=DWORD to integer (swap regs)|i2i=INT to integer|w2i=WORD to integer|s=String'); // options for 'RESPONSE_CONVERT'
+Define('DEF_RESPONSE_CONVERT_OPTIONS', '0=None (bytes array)|hex=None (HEX)|r2f=REAL to Float|r2fs=REAL to Float (swap regs)|d2i=DINT to integer|d2is=DINT to integer (swap regs)|dw2i=DWORD to integer|dw2is=DWORD to integer (swap regs)|i2i=INT to integer|w2i=WORD to integer|s=String'); // options for 'RESPONSE_CONVERT'
 //
 //
 class modbus extends module {
@@ -346,8 +346,16 @@ function usual(&$out) {
    //echo $rec['LOG'];exit;
 
 
+   //$recData=array(0xb4,0xdf,0x0d,0xff,0x00,0x00,0x00,0x00);
+   if (is_array($recData)) {
+       $chars = array_map("chr", $recData);
+       $bin = join($chars);
+       $rec['DATA_ORIGINAL'] = bin2hex($bin);
+   } else {
+       $rec['DATA_ORIGINAL']='';
+   }
 
-  if ($rec['REQUEST_TYPE']=='FC1' || $rec['REQUEST_TYPE']=='FC2' || $rec['REQUEST_TYPE']=='FC3' || $rec['REQUEST_TYPE']=='FC4' && is_array($recData)) {
+     if ($rec['REQUEST_TYPE']=='FC1' || $rec['REQUEST_TYPE']=='FC2' || $rec['REQUEST_TYPE']=='FC3' || $rec['REQUEST_TYPE']=='FC4' && is_array($recData)) {
    // PROCESS RESPONSE
 
    if ($rec['RESPONSE_CONVERT']=='r2f') {
@@ -396,7 +404,11 @@ function usual(&$out) {
    } else {
    //
    }
-   $result=implode(',', $recData);
+   if (is_array($recData)) {
+       $result=implode(',', $recData);
+   } else {
+       $result = '';
+   }
    if ($result && $result!=$rec['DATA']) {
     $rec['LOG']=date('Y-m-d H:i:s')." ".$result."\n".$rec['LOG'];
    }
@@ -406,6 +418,14 @@ function usual(&$out) {
    if ($total > 30) {
     $tmp=array_slice($tmp, 0, 30);
     $rec['LOG']=implode("\n", $tmp);
+   }
+
+   if ($rec['MULTIPLIER'] && $rec['RESPONSE_CONVERT']!="0") {
+       $result = round((float)$result*(float)$rec['MULTIPLIER'],4);
+   }
+
+   if ($rec['RESPONSE_CONVERT']=='hex') {
+       $result = $rec['DATA_ORIGINAL'];
    }
 
    $rec['DATA']=$result;
@@ -489,8 +509,10 @@ modbusdevices - Modbus devices
  modbusdevices: REQUEST_TYPE varchar(10) NOT NULL DEFAULT ''
  modbusdevices: REQUEST_START int(10) NOT NULL DEFAULT '0'
  modbusdevices: REQUEST_TOTAL int(10) NOT NULL DEFAULT '0'
+ modbusdevices: MULTIPLIER varchar(50) NOT NULL DEFAULT ''
  modbusdevices: RESPONSE_CONVERT varchar(10) NOT NULL DEFAULT ''
  modbusdevices: DATA text
+ modbusdevices: DATA_ORIGINAL text
  modbusdevices: CHECK_LATEST datetime
  modbusdevices: CHECK_NEXT datetime
  modbusdevices: POLLPERIOD int(10) NOT NULL DEFAULT '0'
