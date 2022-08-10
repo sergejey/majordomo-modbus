@@ -220,9 +220,6 @@ class modbus extends module
 
         if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY'] && $writing_request) {
             $rec['DATA'] = getGlobal($rec['LINKED_OBJECT'] . '.' . $rec['LINKED_PROPERTY']);
-            if ($rec['MULTIPLIER']) {
-                $rec['DATA'] = round((float)$rec['DATA'] * (float)$rec['MULTIPLIER'], 4);
-            }
         }
 
 
@@ -288,6 +285,9 @@ class modbus extends module
             //FC6 Write single register
             try {
                 $data_set = array((int)$rec['DATA']);
+                if ($rec['MULTIPLIER']) {
+                    $data_set[0] = (int)((float)$data_set[0] * (float)$rec['MULTIPLIER']);
+                }
                 if ($rec['RESPONSE_CONVERT'] == 'r2f') {
                     $dataTypes = array("REAL");
                     $swapregs = false;
@@ -327,6 +327,9 @@ class modbus extends module
                 $data_set = explode(',', $rec['DATA']);
                 $dataTypes = array();
                 foreach ($data_set as $k => $v) {
+                    if ($rec['MULTIPLIER']) {
+                        $v = $v * (float)$rec['MULTIPLIER'];
+                    }
                     if ($rec['RESPONSE_CONVERT'] == 'r2f') {
                         $dataTypes[] = "REAL";
                         $data_set[$k] = (float)$v;
