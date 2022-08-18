@@ -184,7 +184,7 @@ class modbus extends module
      */
     function readAll()
     {
-        $devices = SQLSelect("SELECT ID FROM modbusdevices WHERE CHECK_NEXT<NOW()");
+        $devices = SQLSelect("SELECT ID FROM modbusdevices WHERE CHECK_NEXT<NOW() AND POLLPERIOD>0");
         $total = count($devices);
         for ($i = 0; $i < $total; $i++) {
             $this->poll_device($devices[$i]['ID']);
@@ -200,8 +200,6 @@ class modbus extends module
      */
     function poll_device($id)
     {
-
-
         $rec = SQLSelectOne("SELECT * FROM modbusdevices WHERE ID='" . (int)$id . "'");
         if (!$rec['ID']) {
             return;
@@ -211,8 +209,7 @@ class modbus extends module
         $rec['CHECK_NEXT'] = date('Y-m-d H:i:s', (time() + (int)$rec['POLLPERIOD']));
         SQLUpdate('modbusdevices', $rec);
 
-
-        if ($rec['REQUEST_TYPE'] == 'FC5' || $rec['REQUEST_TYPE'] == 'FC6' || $rec['REQUEST_TYPE'] == 'FC15' || $rec['REQUEST_TYPE'] == 'FC16' || $rec['REQUEST_TYPE'] == 'FC23') {
+        if (in_array($rec['REQUEST_TYPE'], array('FC5', 'FC6', 'FC15', 'FC16', 'FC23'))) {
             $writing_request = 1;
         } else {
             $writing_request = 0;
@@ -362,10 +359,6 @@ class modbus extends module
             //TO-DO
         }
 
-        //echo $rec['LOG'];exit;
-
-
-        //$recData=array(0xb4,0xdf,0x0d,0xff,0x00,0x00,0x00,0x00);
         if (is_array($recData)) {
             $chars = array_map("chr", $recData);
             $bin = join($chars);
@@ -439,7 +432,7 @@ class modbus extends module
                 $rec['LOG'] = implode("\n", $tmp);
             }
 
-            if ($rec['MULTIPLIER'] && $rec['RESPONSE_CONVERT']!= "0" && !$writing_request) {
+            if ($rec['MULTIPLIER'] && $rec['RESPONSE_CONVERT'] != "0" && !$writing_request) {
                 $result = round((float)$result * (float)$rec['MULTIPLIER'], 4);
             }
 
