@@ -7,12 +7,12 @@ if ($this->owner->name == 'panel') {
 }
 $table_name = 'modbusdevices';
 if (gr('copy')) {
-    $rec = SQLSelectOne("SELECT * FROM $table_name WHERE ID='".gr('copy','int')."'");
+    $rec = SQLSelectOne("SELECT * FROM $table_name WHERE ID='" . gr('copy', 'int') . "'");
     unset($rec['ID']);
     unset($rec['LOG']);
     unset($rec['DATA']);
     unset($rec['DATA_ORIGINAL']);
-    $rec['TITLE'].=' copy';
+    $rec['TITLE'] .= ' copy';
 } elseif (gr('id')) {
     $rec = SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
 }
@@ -55,12 +55,6 @@ if ($this->mode == 'update') {
     //updating 'REQUEST_START' (int)
     global $request_start;
     $rec['REQUEST_START'] = (int)$request_start;
-    /*
-    if (!$rec['REQUEST_START']) {
-     $out['ERR_REQUEST_START']=1;
-     $ok=0;
-    }
-    */
     //updating 'REQUEST_TOTAL' (int)
     global $request_total;
     $rec['REQUEST_TOTAL'] = (int)$request_total;
@@ -78,26 +72,10 @@ if ($this->mode == 'update') {
     $rec['MULTIPLIER'] = gr('multiplier');
     if (!$rec['MULTIPLIER']) $rec['MULTIPLIER'] = '';
 
-    //updating 'CHECK_LATEST' (datetime)
-    /*
-     global $check_latest_date;
-     global $check_latest_minutes;
-     global $check_latest_hours;
-     $rec['CHECK_LATEST']=toDBDate($check_latest_date)." $check_latest_hours:$check_latest_minutes:00";
-    //updating 'CHECK_NEXT' (datetime)
-     global $check_next_date;
-     global $check_next_minutes;
-     global $check_next_hours;
-     $rec['CHECK_NEXT']=toDBDate($check_next_date)." $check_next_hours:$check_next_minutes:00";
-     */
     $rec['CHECK_NEXT'] = date('Y-m-d H:i:s');
     //updating 'POLLPERIOD' (int)
     global $pollperiod;
     $rec['POLLPERIOD'] = (int)$pollperiod;
-    if (!$rec['POLLPERIOD']) {
-        $out['ERR_POLLPERIOD'] = 1;
-        $ok = 0;
-    }
 
     $old_linked_object = $rec['LINKED_OBJECT'];
     $old_linked_property = $rec['LINKED_PROPERTY'];
@@ -108,9 +86,6 @@ if ($this->mode == 'update') {
     //updating 'LINKED_PROPERTY' (varchar)
     global $linked_property;
     $rec['LINKED_PROPERTY'] = $linked_property;
-    //updating 'LOG' (varchar)
-    // global $log;
-    // $rec['LOG']=$log;
     //UPDATING RECORD
     if ($ok) {
         unset($rec['LOG']);
