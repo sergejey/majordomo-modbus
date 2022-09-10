@@ -439,8 +439,8 @@ class modbus extends module
             if ($rec['RESPONSE_CONVERT'] == 'hex') {
                 $result = $rec['DATA_ORIGINAL'];
             }
-
-            $rec['DATA'] = $result;
+            
+            $rec['DATA'] = round($result, $rec['ROUND']);
             SQLUpdate('modbusdevices', $rec);
 
             if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY'] && !$writing_request) {
@@ -534,6 +534,7 @@ class modbus extends module
  modbusdevices: REQUEST_START int(10) NOT NULL DEFAULT '0'
  modbusdevices: REQUEST_TOTAL int(10) NOT NULL DEFAULT '0'
  modbusdevices: MULTIPLIER varchar(50) NOT NULL DEFAULT ''
+ modbusdevices: ROUND tinyint(10) NOT NULL DEFAULT ''
  modbusdevices: RESPONSE_CONVERT varchar(10) NOT NULL DEFAULT ''
  modbusdevices: DATA text
  modbusdevices: DATA_ORIGINAL text

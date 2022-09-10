@@ -72,6 +72,9 @@ if ($this->mode == 'update') {
     $rec['MULTIPLIER'] = gr('multiplier');
     if (!$rec['MULTIPLIER']) $rec['MULTIPLIER'] = '';
 
+    $rec['ROUND'] = gr('round');
+    if (!$rec['ROUND']=='') $rec['ROUND'] = '2';
+
     $rec['CHECK_NEXT'] = date('Y-m-d H:i:s');
     //updating 'POLLPERIOD' (int)
     global $pollperiod;
