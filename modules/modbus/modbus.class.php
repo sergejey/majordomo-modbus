@@ -166,7 +166,7 @@ class modbus extends module
 
     function propertySetHandle($object, $property, $value)
     {
-        $modbusdevices = SQLSelect("SELECT ID FROM modbusdevices WHERE LINKED_OBJECT LIKE '" . DBSafe($object) . "' AND LINKED_PROPERTY LIKE '" . DBSafe($property) . "'");
+        $modbusdevices = SQLSelect("SELECT ID FROM modbusdevices WHERE LINKED_OBJECT LIKE '" . DBSafe($object) . "' AND LINKED_PROPERTY LIKE '" . DBSafe($property) . "' AND (REQUEST_TYPE IN ('FC5', 'FC6', 'FC15', 'FC16', 'FC23'))");
         $total = count($modbusdevices);
         if ($total) {
             for ($i = 0; $i < $total; $i++) {
