@@ -200,6 +200,9 @@ class modbus extends module
      */
     function poll_device($id)
     {
+
+        $communication_error = false;
+
         $rec = SQLSelectOne("SELECT * FROM modbusdevices WHERE ID='" . (int)$id . "'");
         if (!$rec['ID']) {
             return;
@@ -237,6 +240,7 @@ class modbus extends module
             } catch (Exception $e) {
                 // Print error information if any
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC1 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC2') {
             //FC2 Read input discretes
@@ -249,6 +253,7 @@ class modbus extends module
             } catch (Exception $e) {
                 // Print error information if any
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC2 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC3') {
             //FC3 Read holding registers
@@ -257,6 +262,7 @@ class modbus extends module
             } catch (Exception $e) {
                 // Print error information if any
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC3 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC4') {
             //FC4 Read holding input registers
@@ -265,6 +271,7 @@ class modbus extends module
             } catch (Exception $e) {
                 // Print error information if any
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC4 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC5') {
             //FC5 Write single coil
@@ -277,6 +284,7 @@ class modbus extends module
                 $modbus->writeSingleCoil($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set);
             } catch (Exception $e) {
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC5 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC6') {
             //FC6 Write single register
@@ -305,6 +313,7 @@ class modbus extends module
             } catch (Exception $e) {
                 // Print error information if any
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC6 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC15') {
             //FC15 Write multiple coils
@@ -316,6 +325,7 @@ class modbus extends module
                 $modbus->writeMultipleCoils($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set);
             } catch (Exception $e) {
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC15 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
 
         } elseif ($rec['REQUEST_TYPE'] == 'FC16') {
@@ -353,6 +363,7 @@ class modbus extends module
             } catch (Exception $e) {
                 // Print error information if any
                 $rec['LOG'] = date('Y-m-d H:i:s') . " FC16 Error: $modbus $e\n" . $rec['LOG'];
+                $communication_error = true;
             }
         } elseif ($rec['REQUEST_TYPE'] == 'FC23') {
             //FC23 Read/Write multiple registers
@@ -439,12 +450,13 @@ class modbus extends module
             if ($rec['RESPONSE_CONVERT'] == 'hex') {
                 $result = $rec['DATA_ORIGINAL'];
             }
-
-            $rec['DATA'] = $result;
+            if (!$communication_error) {
+                $rec['DATA'] = $result;
+            }
             SQLUpdate('modbusdevices', $rec);
 
-            if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY'] && !$writing_request) {
-                setGlobal($rec['LINKED_OBJECT'] . '.' . $rec['LINKED_PROPERTY'], $rec['DATA'], array($this->name => '0'));
+            if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY'] && !$writing_request && !$communication_error) {
+                setGlobal($rec['LINKED_OBJECT'] . '.' . $rec['LINKED_PROPERTY'], $rec['DATA'], array($this->name => '0'), $this->name);
             }
 
         } else {
