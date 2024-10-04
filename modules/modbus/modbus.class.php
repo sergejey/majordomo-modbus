@@ -381,42 +381,42 @@ class modbus extends module
         if ($rec['REQUEST_TYPE'] == 'FC1' || $rec['REQUEST_TYPE'] == 'FC2' || $rec['REQUEST_TYPE'] == 'FC3' || $rec['REQUEST_TYPE'] == 'FC4' && is_array($recData)) {
             // PROCESS RESPONSE
 
-            if ($rec['RESPONSE_CONVERT'] == 'r2f') {
+            if ($rec['RESPONSE_CONVERT'] == 'r2f' && is_array($recData)) {
                 //REAL to Float
                 $values = array_chunk($recData, 4);
                 $recData = array();
                 foreach ($values as $bytes) echo $recData[] = PhpType::bytes2float($bytes, false);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'r2fs') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'r2fs' && is_array($recData)) {
                 //REAL to Float (swap regs)
                 $values = array_chunk($recData, 4);
                 $recData = array();
                 foreach ($values as $bytes) echo $recData[] = PhpType::bytes2float($bytes, true);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'd2i') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'd2i' && is_array($recData)) {
                 //DINT to integer
                 $values = array_chunk($recData, 4);
                 $recData = array();
                 foreach ($values as $bytes) echo $recData[] = PhpType::bytes2signedInt($bytes, false);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'd2is') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'd2is' && is_array($recData)) {
                 //DINT to integer (swap regs)
                 $values = array_chunk($recData, 4);
                 $recData = array();
                 foreach ($values as $bytes) echo $recData[] = PhpType::bytes2signedInt($bytes, true);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'dw2i') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'dw2i' && is_array($recData)) {
                 //DWORD to integer
                 $values = array_chunk($recData, 4);
                 $recData = array();
                 foreach ($values as $bytes) $recData[] = PhpType::bytes2unsignedInt($bytes, false);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'dw2is') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'dw2is' && is_array($recData)) {
                 //DWORD to integer (swap regs)
                 $values = array_chunk($recData, 4);
                 $recData = array();
                 foreach ($values as $bytes) $recData[] = PhpType::bytes2unsignedInt($bytes, true);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'i2i') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'i2i' && is_array($recData)) {
                 //INT to integer
                 $values = array_chunk($recData, 2);
                 $recData = array();
                 foreach ($values as $bytes) $recData[] = PhpType::bytes2signedInt($bytes, false);
-            } elseif ($rec['RESPONSE_CONVERT'] == 'w2i') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 'w2i' && is_array($recData)) {
                 //WORD to integer
                 $values = array_chunk($recData, 2);
                 $recData = array();
