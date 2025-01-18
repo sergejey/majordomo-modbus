@@ -22,7 +22,7 @@ class modbus extends module
      *
      * @access private
      */
-    function modbus()
+    function __construct()
     {
         $this->name = "modbus";
         $this->title = "<#LANG_MODULE_MODBUS#>";
@@ -200,7 +200,6 @@ class modbus extends module
      */
     function poll_device($id)
     {
-
         $communication_error = false;
 
         $rec = SQLSelectOne("SELECT * FROM modbusdevices WHERE ID='" . (int)$id . "'");
