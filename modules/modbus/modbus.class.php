@@ -441,6 +441,9 @@ class modbus extends module
                 $tmp = array_slice($tmp, 0, 30);
                 $rec['LOG'] = implode("\n", $tmp);
             }
+            if (strlen($rec['LOG']) > 50000) {
+                $rec['LOG'] = substr($rec['LOG'], 0, 50000);
+            }
 
             if ($rec['MULTIPLIER'] && $rec['RESPONSE_CONVERT'] != "0" && !$writing_request) {
                 $result = round((float)$result * (float)$rec['MULTIPLIER'], 4);
@@ -449,9 +452,11 @@ class modbus extends module
             if ($rec['RESPONSE_CONVERT'] == 'hex') {
                 $result = $rec['DATA_ORIGINAL'];
             }
+
             if (!$communication_error) {
                 $rec['DATA'] = $result;
             }
+
             SQLUpdate('modbusdevices', $rec);
 
             if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY'] && !$writing_request && !$communication_error) {
