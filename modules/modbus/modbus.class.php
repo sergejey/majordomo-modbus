@@ -9,8 +9,8 @@
  * @copyright http://www.atmatic.eu/ (c)
  * @version 0.1 (wizard, 17:07:34 [Jul 24, 2014])
  */
-Define('DEF_REQUEST_TYPE_OPTIONS', 'FC1=FC1 Read coils|FC2=FC2 Read input discretes|FC3=FC3 Read holding registers|FC4=FC4 Read holding input registers|FC5=FC5 Write single coil|FC6=FC6 Write single register|FC15=FC15 Write multiple coils|FC16=FC16 Write multiple registers'); // options for 'REQUEST_TYPE' |FC23=FC23 Read/Write multiple registers
-Define('DEF_RESPONSE_CONVERT_OPTIONS', '0=None (bytes array)|hex=None (HEX)|r2f=REAL to Float|r2fs=REAL to Float (swap regs)|d2i=DINT to integer|d2is=DINT to integer (swap regs)|dw2i=DWORD to integer|dw2is=DWORD to integer (swap regs)|i2i=INT to integer|w2i=WORD to integer|s=String'); // options for 'RESPONSE_CONVERT'
+Define('DEF_REQUEST_TYPE_OPTIONS', 'FC1=FC1 Read coils|FC2=FC2 Read input discretes|FC3=FC3 Read holding registers|FC4=FC4 Read input registers|FC5=FC5 Write single coil|FC6=FC6 Write single register|FC15=FC15 Write multiple coils|FC16=FC16 Write multiple registers'); // options for 'REQUEST_TYPE' |FC23=FC23 Read/Write multiple registers
+Define('DEF_RESPONSE_CONVERT_OPTIONS', '0=None (bytes array)|hex=None (HEX)|r2f=REAL to Float (low word first, CDAB)|r2fs=REAL to Float (swap regs: high word first, ABCD)|d2i=DINT to integer (low word first, CDAB)|d2is=DINT to integer (swap regs: high word first, ABCD)|dw2i=DWORD to integer (low word first, CDAB)|dw2is=DWORD to integer (swap regs: high word first, ABCD)|i2i=INT to integer (signed 16-bit)|w2i=WORD to integer (unsigned 16-bit)|s=String'); // options for 'RESPONSE_CONVERT'
 //
 //
 class modbus extends module
