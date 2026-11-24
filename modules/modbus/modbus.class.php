@@ -201,6 +201,7 @@ class modbus extends module
     function poll_device($id)
     {
         $communication_error = false;
+        $recData = null;
 
         $rec = SQLSelectOne("SELECT * FROM modbusdevices WHERE ID='" . (int)$id . "'");
         if (!$rec['ID']) {
@@ -380,26 +381,33 @@ class modbus extends module
         if ($rec['REQUEST_TYPE'] == 'FC1' || $rec['REQUEST_TYPE'] == 'FC2' || $rec['REQUEST_TYPE'] == 'FC3' || $rec['REQUEST_TYPE'] == 'FC4' && is_array($recData)) {
             // PROCESS RESPONSE
 
+            // 16/32-bit conversions need an even number of bytes (not the case for coils)
+            if (is_array($recData) && count($recData) % 2 && in_array($rec['RESPONSE_CONVERT'], array('r2f', 'r2fs', 'd2i', 'd2is', 'dw2i', 'dw2is', 'i2i', 'w2i'))) {
+                $rec['LOG'] = date('Y-m-d H:i:s') . " " . $rec['REQUEST_TYPE'] . " Error: selected conversion needs 16-bit registers, got " . count($recData) . " byte(s)\n" . $rec['LOG'];
+                $communication_error = true;
+                $recData = null;
+            }
+
             if ($rec['RESPONSE_CONVERT'] == 'r2f' && is_array($recData)) {
                 //REAL to Float
                 $values = array_chunk($recData, 4);
                 $recData = array();
-                foreach ($values as $bytes) echo $recData[] = PhpType::bytes2float($bytes, false);
+                foreach ($values as $bytes) $recData[] = PhpType::bytes2float($bytes, false);
             } elseif ($rec['RESPONSE_CONVERT'] == 'r2fs' && is_array($recData)) {
                 //REAL to Float (swap regs)
                 $values = array_chunk($recData, 4);
                 $recData = array();
-                foreach ($values as $bytes) echo $recData[] = PhpType::bytes2float($bytes, true);
+                foreach ($values as $bytes) $recData[] = PhpType::bytes2float($bytes, true);
             } elseif ($rec['RESPONSE_CONVERT'] == 'd2i' && is_array($recData)) {
                 //DINT to integer
                 $values = array_chunk($recData, 4);
                 $recData = array();
-                foreach ($values as $bytes) echo $recData[] = PhpType::bytes2signedInt($bytes, false);
+                foreach ($values as $bytes) $recData[] = PhpType::bytes2signedInt($bytes, false);
             } elseif ($rec['RESPONSE_CONVERT'] == 'd2is' && is_array($recData)) {
                 //DINT to integer (swap regs)
                 $values = array_chunk($recData, 4);
                 $recData = array();
-                foreach ($values as $bytes) echo $recData[] = PhpType::bytes2signedInt($bytes, true);
+                foreach ($values as $bytes) $recData[] = PhpType::bytes2signedInt($bytes, true);
             } elseif ($rec['RESPONSE_CONVERT'] == 'dw2i' && is_array($recData)) {
                 //DWORD to integer
                 $values = array_chunk($recData, 4);
@@ -420,7 +428,7 @@ class modbus extends module
                 $values = array_chunk($recData, 2);
                 $recData = array();
                 foreach ($values as $bytes) $recData[] = PhpType::bytes2unsignedInt($bytes, false);
-            } elseif ($rec['RESPONSE_CONVERT'] == 's') {
+            } elseif ($rec['RESPONSE_CONVERT'] == 's' && is_array($recData)) {
                 //String
                 $recData = array(PhpType::bytes2string($recData));
             } else {
