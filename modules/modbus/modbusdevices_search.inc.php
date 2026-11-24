@@ -36,7 +36,8 @@
    }
    $session->data['modbusdevices_sort']=$sortby_modbusdevices;
   }
-  if (!$sortby_modbusdevices) $sortby_modbusdevices="ID DESC";
+  // only known columns may get into ORDER BY
+  if (!in_array($sortby_modbusdevices, array('ID', 'ID DESC', 'TITLE', 'TITLE DESC'))) $sortby_modbusdevices="ID DESC";
   $out['SORTBY']=$sortby_modbusdevices;
   // SEARCH RESULTS
   $res=SQLSelect("SELECT * FROM modbusdevices WHERE $qry ORDER BY ".$sortby_modbusdevices);
@@ -44,7 +45,9 @@
    colorizeArray($res);
    $total=count($res);
    for($i=0;$i<$total;$i++) {
-    // some action for every record if required
+    foreach (array('TITLE', 'HOST', 'DATA', 'DATA_ORIGINAL') as $k) {
+     $res[$i][$k]=htmlspecialchars((string)$res[$i][$k]);
+    }
    }
    $out['RESULT']=$res;
   }
