@@ -497,9 +497,28 @@ class modbus extends module
      */
     function delete_modbusdevices($id)
     {
-        $rec = SQLSelectOne("SELECT * FROM modbusdevices WHERE ID='$id'");
-        // some action for related tables
-        SQLExec("DELETE FROM modbusdevices WHERE ID='" . $rec['ID'] . "'");
+        $rec = SQLSelectOne("SELECT * FROM modbusdevices WHERE ID='" . (int)$id . "'");
+        if (empty($rec['ID'])) {
+            return;
+        }
+        SQLExec("DELETE FROM modbusdevices WHERE ID='" . (int)$rec['ID'] . "'");
+        $this->unlinkProperty($rec['LINKED_OBJECT'], $rec['LINKED_PROPERTY'], $rec['ID']);
+    }
+
+    /**
+     * Removes property link unless another record still uses it
+     *
+     * @access public
+     */
+    function unlinkProperty($object, $property, $exclude_id = 0)
+    {
+        if (!$object || !$property) {
+            return;
+        }
+        $other = SQLSelectOne("SELECT ID FROM modbusdevices WHERE LINKED_OBJECT='" . DBSafe($object) . "' AND LINKED_PROPERTY='" . DBSafe($property) . "' AND ID!=" . (int)$exclude_id);
+        if (empty($other['ID'])) {
+            removeLinkedProperty($object, $property, $this->name);
+        }
     }
 
     /**
