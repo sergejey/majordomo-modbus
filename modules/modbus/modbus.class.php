@@ -289,26 +289,17 @@ class modbus extends module
         } elseif ($rec['REQUEST_TYPE'] == 'FC6') {
             //FC6 Write single register
             try {
-                $data_set = array((int)$rec['DATA']);
+                // FC6 always carries exactly one 16-bit value
+                if ($rec['RESPONSE_CONVERT'] == 'r2f' || $rec['RESPONSE_CONVERT'] == 'r2fs') {
+                    throw new Exception('FC6 writes a single 16-bit register and cannot carry a REAL value, use FC16 instead');
+                }
+                $value = (float)trim((string)$rec['DATA']);
                 if ($rec['MULTIPLIER']) {
-                    $data_set[0] = (int)((float)$data_set[0] * (float)$rec['MULTIPLIER']);
+                    $value = $value * (float)$rec['MULTIPLIER'];
                 }
-                if ($rec['RESPONSE_CONVERT'] == 'r2f') {
-                    $dataTypes = array("REAL");
-                    $swapregs = false;
-                } elseif ($rec['RESPONSE_CONVERT'] == 'r2fs') {
-                    $dataTypes = array("REAL");
-                    $swapregs = true;
-                } elseif ($rec['RESPONSE_CONVERT'] == 'd2i' || $rec['RESPONSE_CONVERT'] == 'dw2i') {
-                    $dataTypes = array("DINT");
-                    $swapregs = false;
-                } elseif ($rec['RESPONSE_CONVERT'] == 'd2is' || $rec['RESPONSE_CONVERT'] == 'dw2is') {
-                    $dataTypes = array("DINT");
-                    $swapregs = true;
-                } else {
-                    $dataTypes = array("INT");
-                    $swapregs = false;
-                }
+                $data_set = array((int)round($value));
+                $dataTypes = array("INT");
+                $swapregs = false;
                 $recData = $modbus->writeSingleRegister($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set, $dataTypes, $swapregs);
             } catch (Exception $e) {
                 // Print error information if any
@@ -319,7 +310,8 @@ class modbus extends module
             //FC15 Write multiple coils
             $data_set = explode(',', $rec['DATA']);
             foreach ($data_set as $k => $v) {
-                $data_set[$k] = (bool)$v;
+                $v = strtolower(trim($v));
+                $data_set[$k] = !($v === '' || $v === '0' || $v === 'false' || $v === 'off');
             }
             try {
                 $modbus->writeMultipleCoils($rec['DEVICE_ID'], $rec['REQUEST_START'], $data_set);
@@ -334,6 +326,7 @@ class modbus extends module
                 $data_set = explode(',', $rec['DATA']);
                 $dataTypes = array();
                 foreach ($data_set as $k => $v) {
+                    $v = (float)trim($v);
                     if ($rec['MULTIPLIER']) {
                         $v = $v * (float)$rec['MULTIPLIER'];
                     }
@@ -347,14 +340,14 @@ class modbus extends module
                         $swapregs = true;
                     } elseif ($rec['RESPONSE_CONVERT'] == 'd2i' || $rec['RESPONSE_CONVERT'] == 'dw2i') {
                         $dataTypes[] = "DINT";
-                        $data_set[$k] = (int)$v;
+                        $data_set[$k] = (int)round($v);
                         $swapregs = false;
                     } elseif ($rec['RESPONSE_CONVERT'] == 'd2is' || $rec['RESPONSE_CONVERT'] == 'dw2is') {
                         $dataTypes[] = "DINT";
-                        $data_set[$k] = (int)$v;
+                        $data_set[$k] = (int)round($v);
                         $swapregs = true;
                     } else {
-                        $data_set[$k] = (int)$v;
+                        $data_set[$k] = (int)round($v);
                         $dataTypes[] = "INT";
                         $swapregs = false;
                     }
