@@ -14,7 +14,7 @@ if (gr('copy')) {
     unset($rec['DATA_ORIGINAL']);
     $rec['TITLE'] .= ' copy';
 } elseif (gr('id')) {
-    $rec = SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
+    $rec = SQLSelectOne("SELECT * FROM $table_name WHERE ID='" . (int)$id . "'");
 }
 
 if ($this->mode == 'update') {
@@ -36,13 +36,22 @@ if ($this->mode == 'update') {
 
     global $port;
     $rec['PORT'] = (int)$port;
+    if ($rec['PORT'] < 0 || $rec['PORT'] > 65535) {
+        $out['ERR_PORT'] = 1;
+        $ok = 0;
+    }
 
 
     global $protocol;
-    $rec['PROTOCOL'] = $protocol;
+    $rec['PROTOCOL'] = ($protocol == 'UDP') ? 'UDP' : 'TCP';
 
     global $device_id;
     $rec['DEVICE_ID'] = (int)$device_id;
+    // unit identifier is a single byte
+    if ($rec['DEVICE_ID'] < 0 || $rec['DEVICE_ID'] > 255) {
+        $out['ERR_DEVICE_ID'] = 1;
+        $ok = 0;
+    }
 
 
     //updating 'REQUEST_TYPE' (select)
@@ -55,16 +64,30 @@ if ($this->mode == 'update') {
     //updating 'REQUEST_START' (int)
     global $request_start;
     $rec['REQUEST_START'] = (int)$request_start;
+    if ($rec['REQUEST_START'] < 0 || $rec['REQUEST_START'] > 65535) {
+        $out['ERR_REQUEST_START'] = 1;
+        $ok = 0;
+    }
     //updating 'REQUEST_TOTAL' (int)
     global $request_total;
     $rec['REQUEST_TOTAL'] = (int)$request_total;
-    if (!$rec['REQUEST_TOTAL']) {
+    // limits from MODBUS Application Protocol V1.1b3
+    if ($rec['REQUEST_TYPE'] == 'FC1' || $rec['REQUEST_TYPE'] == 'FC2') {
+        $max_total = 2000;
+    } elseif ($rec['REQUEST_TYPE'] == 'FC3' || $rec['REQUEST_TYPE'] == 'FC4') {
+        $max_total = 125;
+    } else {
+        // write requests take the quantity from the data
+        $max_total = 0;
+        if ($rec['REQUEST_TOTAL'] < 1) $rec['REQUEST_TOTAL'] = 1;
+    }
+    if ($rec['REQUEST_TOTAL'] < 1 || ($max_total && $rec['REQUEST_TOTAL'] > $max_total)) {
         $out['ERR_REQUEST_TOTAL'] = 1;
         $ok = 0;
     }
     //updating 'RESPONSE_CONVERT' (select)
     global $response_convert;
-    $rec['RESPONSE_CONVERT'] = $response_convert;
+    $rec['RESPONSE_CONVERT'] = ($response_convert == '') ? '0' : $response_convert;
     //updating 'DATA' (text)
     global $data;
     $rec['DATA'] = $data;
@@ -77,19 +100,19 @@ if ($this->mode == 'update') {
     global $pollperiod;
     $rec['POLLPERIOD'] = (int)$pollperiod;
 
-    $old_linked_object = $rec['LINKED_OBJECT'];
-    $old_linked_property = $rec['LINKED_PROPERTY'];
+    $old_linked_object = isset($rec['LINKED_OBJECT']) ? $rec['LINKED_OBJECT'] : '';
+    $old_linked_property = isset($rec['LINKED_PROPERTY']) ? $rec['LINKED_PROPERTY'] : '';
 
     //updating 'LINKED_OBJECT' (varchar)
     global $linked_object;
-    $rec['LINKED_OBJECT'] = $linked_object;
+    $rec['LINKED_OBJECT'] = trim($linked_object);
     //updating 'LINKED_PROPERTY' (varchar)
     global $linked_property;
-    $rec['LINKED_PROPERTY'] = $linked_property;
+    $rec['LINKED_PROPERTY'] = trim($linked_property);
     //UPDATING RECORD
     if ($ok) {
         unset($rec['LOG']);
-        if ($rec['ID']) {
+        if (!empty($rec['ID'])) {
             SQLUpdate($table_name, $rec); // update
         } else {
             $new_rec = 1;
@@ -97,11 +120,12 @@ if ($this->mode == 'update') {
         }
         $out['OK'] = 1;
 
+        // drop the old link first so that re-adding the same property keeps it
+        if ($old_linked_object && $old_linked_property && ($old_linked_object != $rec['LINKED_OBJECT'] || $old_linked_property != $rec['LINKED_PROPERTY'])) {
+            $this->unlinkProperty($old_linked_object, $old_linked_property, $rec['ID']);
+        }
         if ($rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY']) {
             addLinkedProperty($rec['LINKED_OBJECT'], $rec['LINKED_PROPERTY'], $this->name);
-        }
-        if ($old_linked_object && $old_linked_object != $rec['LINKED_OBJECT'] && $old_linked_property && $old_linked_property != $rec['LINKED_PROPERTY']) {
-            removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);
         }
 
         $this->poll_device($rec['ID']);
