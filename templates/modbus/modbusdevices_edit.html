@@ -23,68 +23,66 @@
             [#endif ERR#]
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_TITLE#>:<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_TITLE#]alert-danger[#endif#]"  name="title" value="[#TITLE#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="title"><#LANG_TITLE#>:<font color="red">*</font></label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_TITLE#]alert-danger[#endif#]"  name="title" id="title" value="[#TITLE#]" required="true"></div>
             </div>
 
-
-
-
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_HOSTNAME#>:<font color="red">*</font></label>
+                <label class="col-lg-4 control-label" for="host"><#LANG_HOSTNAME#>:<font color="red">*</font></label>
                 <div class="col-lg-8">
-                    <input type="text"  class="form-control [#if ERR_HOST#]alert-danger[#endif#]"  name="host" value="[#HOST#]" required="true">
-                    <select name="protocol" class="form-control" class="span2">
-                        <option value="TCP"[#if PROTOCOL="TCP"#] selected[#endif#]>TCP
-                        <option value="UDP"[#if PROTOCOL="UDP"#] selected[#endif#]>UDP
+                    <input type="text"  class="form-control [#if ERR_HOST#]alert-danger[#endif#]"  name="host" id="host" value="[#HOST#]" required="true">
+                    <select name="protocol" class="form-control">
+                        <option value="TCP"[#if PROTOCOL="TCP"#] selected[#endif#]>Modbus TCP</option>
+                        <option value="UDP"[#if PROTOCOL="UDP"#] selected[#endif#]>Modbus UDP</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_PORT#>:</label>
+                <label class="col-lg-4 control-label" for="port"><#LANG_PORT#>:</label>
                 <div class="col-lg-8">
-                    <input type="text"  class="form-control [#if ERR_HOST#]alert-danger[#endif#]" placeholder="502"  name="port" value="[#PORT#]">
-                    0 - <#LANG_USE_DEFAULT#> (502)
+                    <input type="text"  class="form-control [#if ERR_PORT#]alert-danger[#endif#]" placeholder="502"  name="port" id="port" value="[#PORT#]">
+                    <div class="help-block">0 - <#LANG_USE_DEFAULT#> (502)</div>
                 </div>
             </div>
 
-
-
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_DEVICE_ID#>:<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_DEVICE_ID#]alert-danger[#endif#]"  name="device_id" value="[#DEVICE_ID#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="device_id"><#LANG_DEVICE_ID#>:<font color="red">*</font></label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_DEVICE_ID#]alert-danger[#endif#]"  name="device_id" id="device_id" value="[#DEVICE_ID#]" required="true">
+                    <div class="help-block">Unit ID (slave address), 0-255</div></div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_REQUEST_TYPE#>:<font color="red">*</font></label>
+                <label class="col-lg-4 control-label" for="request_type"><#LANG_REQUEST_TYPE#>:<font color="red">*</font></label>
                 <div class="col-lg-8">
-                    <select name="request_type"  class="form-control [#if ERR_REQUEST_TYPE#]alert-danger[#endif#]">
-                        <option value="">select
-                            [#begin REQUEST_TYPE_OPTIONS#]<option value="[#VALUE#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
+                    <select name="request_type" id="request_type" class="form-control [#if ERR_REQUEST_TYPE#]alert-danger[#endif#]" required="true">
+                        <option value="">select</option>
+                        [#begin REQUEST_TYPE_OPTIONS#]<option value="[#VALUE#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]</option>
                         [#end REQUEST_TYPE_OPTIONS#]
                     </select>
                 </div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_REQUEST_START#>:<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_REQUEST_START#]alert-danger[#endif#]"  name="request_start" value="[#REQUEST_START#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="request_start"><#LANG_REQUEST_START#>:<font color="red">*</font></label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_REQUEST_START#]alert-danger[#endif#]"  name="request_start" id="request_start" value="[#REQUEST_START#]" required="true">
+                    <div class="help-block">Zero-based protocol address, 0-65535 (register 40001 = address 0)</div></div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_REQUEST_TOTAL#>:<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_REQUEST_TOTAL#]alert-danger[#endif#]"  name="request_total" value="[#REQUEST_TOTAL#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="request_total"><#LANG_REQUEST_TOTAL#>:<font color="red">*</font></label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_REQUEST_TOTAL#]alert-danger[#endif#]"  name="request_total" id="request_total" value="[#REQUEST_TOTAL#]" required="true">
+                    <div class="help-block">Coils/registers to read: FC1, FC2 up to 2000; FC3, FC4 up to 125. Write requests take the quantity from the data.</div></div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_RESPONSE_CONVERT#>:<font color="red">*</font></label>
+                <label class="col-lg-4 control-label" for="response_convert"><#LANG_RESPONSE_CONVERT#>:</label>
                 <div class="col-lg-8">
-                    <select name="response_convert"  class="form-control [#if ERR_RESPONSE_CONVERT#]alert-danger[#endif#]">
-                        <option value="">select
-                            [#begin RESPONSE_CONVERT_OPTIONS#]<option value="[#VALUE#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
+                    <select name="response_convert" id="response_convert" class="form-control">
+                        [#begin RESPONSE_CONVERT_OPTIONS#]<option value="[#VALUE#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]</option>
                         [#end RESPONSE_CONVERT_OPTIONS#]
                     </select>
+                    <div class="help-block">Applies to registers (FC3, FC4, FC16). 32-bit types take 2 registers per value. FC6 always writes one 16-bit value.</div>
                 </div>
             </div>
 
@@ -92,71 +90,57 @@
                 <label class="col-lg-4 control-label" for="multiplier">Value multiplier:</label>
                 <div class="col-lg-8">
                     <input type="text"  class="form-control" name="multiplier" id="multiplier" placeholder="<#LANG_NO#>" value="[#MULTIPLIER#]">
-                    <div class="help-block">Ex: 0.001, 1000, etc.</div>
+                    <div class="help-block">Ex: 0.001, 1000, etc. Read: device value &times; multiplier. Write: value &times; multiplier is sent to the device.</div>
                 </div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_CHECK_EVERY#> (sec):<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_POLLPERIOD#]alert-danger[#endif#]"  name="pollperiod" value="[#POLLPERIOD#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="pollperiod"><#LANG_CHECK_EVERY#> (sec):<font color="red">*</font></label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_POLLPERIOD#]alert-danger[#endif#]"  name="pollperiod" id="pollperiod" value="[#POLLPERIOD#]" required="true">
+                    <div class="help-block">0 - no periodic polling. Write requests are also sent on every change of the linked property.</div></div>
             </div>
 
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_DATA#> </label>
-                <div class="col-lg-8"><input type="text"  class="form-control"  name="data" value="[#DATA#]">
-                    [#if DATA_ORIGINAL!=""#]<div class="help-block">[#DATA_ORIGINAL#]</div>[#endif#]
+                <label class="col-lg-4 control-label" for="data"><#LANG_DATA#>:</label>
+                <div class="col-lg-8"><input type="text"  class="form-control"  name="data" id="data" value="[#DATA#]">
+                    [#if DATA_ORIGINAL!=""#]<div class="help-block">HEX: [#DATA_ORIGINAL#]</div>[#endif#]
+                    <div class="help-block">Read requests: last received value. Write requests: value to send (comma separated for FC15, FC16), taken from the linked property when it is set.</div>
                 </div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_LINKED_OBJECT#>:<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_LINKED_OBJECT#]alert-danger[#endif#]"  name="linked_object" id="linked_object" value="[#LINKED_OBJECT#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="linked_object"><#LANG_LINKED_OBJECT#>:</label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_LINKED_OBJECT#]alert-danger[#endif#]"  name="linked_object" id="linked_object" value="[#LINKED_OBJECT#]"></div>
             </div>
 
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_LINKED_PROPERTY#>:<font color="red">*</font></label>
-                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_LINKED_PROPERTY#]alert-danger[#endif#]"  name="linked_property" id="linked_property" value="[#LINKED_PROPERTY#]" required="true"></div>
+                <label class="col-lg-4 control-label" for="linked_property"><#LANG_LINKED_PROPERTY#>:</label>
+                <div class="col-lg-8"><input type="text"  class="form-control [#if ERR_LINKED_PROPERTY#]alert-danger[#endif#]"  name="linked_property" id="linked_property" value="[#LINKED_PROPERTY#]"></div>
             </div>
 
             [#module name="linkedobject" object_field="linked_object" property_field="linked_property" method_field="onchange_method"#]
 
 
             [#if ID!=""#]
-            <!-- DATA (text) -->
-            <!--#
-            <tr>
-             <td valign=top align=right>
-             [#if ERR_DATA#]<b><font color="red">[#endif#]
-             DATA
-             :
-             </td>
-             <td valign=top>
-             <textarea name="data" rows=12 cols=100>[#DATA#]</textarea>
-             </td>
-            </tr>
-            #-->
 
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_LAST_CHECKED#>:<font color="red">*</font></label>
-                <div class="col-lg-8"> [#CHECK_LATEST#]</div>
+                <label class="col-lg-4 control-label"><#LANG_LAST_CHECKED#>:</label>
+                <div class="col-lg-8"><p class="form-control-static">[#CHECK_LATEST#]</p></div>
             </div>
 
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle"><#LANG_CHECK_NEXT#>:<font color="red">*</font></label>
-                <div class="col-lg-8"> [#CHECK_NEXT#]</div>
+                <label class="col-lg-4 control-label"><#LANG_CHECK_NEXT#>:</label>
+                <div class="col-lg-8"><p class="form-control-static">[#CHECK_NEXT#]</p></div>
             </div>
 
 
             [#endif ID#]
 
-
-
-
             <div class="form-group ">
-                <label class="col-lg-4 control-label" for="inputTitle">&nbsp;</label>
+                <label class="col-lg-4 control-label">&nbsp;</label>
                 <div class="col-lg-8">
 
                     [#if ID!=""#]
@@ -174,13 +158,6 @@
                 </div>
             </div>
 
-
-
-
-
-
-
-
             <input type="hidden" name="id" value="<#ID#>">
             <input type="hidden" name="view_mode" value="<#VIEW_MODE#>">
             <input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
@@ -193,7 +170,7 @@
     <div class="col-md-6">
         [#if ID!=""#]
         <h4><#LANG_LOG#>:</h4>
-                [#LOG#]
+        <div style="max-height:600px;overflow:auto;word-break:break-all;font-family:monospace;font-size:12px;">[#LOG#]</div>
         [#endif ID#]
     </div>
 </div>
